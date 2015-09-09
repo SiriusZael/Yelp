@@ -16,6 +16,7 @@ class FiltersViewController: UIViewController, UITableViewDataSource, UITableVie
     SwitchCellDelegate {
     @IBOutlet weak var tableView: UITableView!
     weak var delegate: FiltersViewControllerDelegate?
+    var categories: [[String:String]]!
     
     var sectionExpanded = [1: false, 2: false, 3: false]
     
@@ -24,11 +25,11 @@ class FiltersViewController: UIViewController, UITableViewDataSource, UITableVie
     
     let sortByValues = [0,1,2]
     let sortByLabels = ["Best Match", "Distance", "Rating"]
-    let categories = ["fooddeliveryservices", "bars", "vegetarian", "vegan", "musicvenues", "hotdogs", "cafes"]
     
     var sortByIndex = 0
     var distanceIndex = 0
     var switchStates = [Int:[Int:Bool]]()
+    var searchSettings: YelpSearchSettings!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -38,8 +39,21 @@ class FiltersViewController: UIViewController, UITableViewDataSource, UITableVie
         tableView.rowHeight = UITableViewAutomaticDimension
         tableView.estimatedRowHeight = 40
         
+        categories = YelpCategories()
+        
         tableView.dataSource = self
         tableView.delegate = self
+        
+        sortByIndex = find(sortByValues, searchSettings.sortBy)!
+        distanceIndex = find(distanceValues, searchSettings.distance)!
+        switchStates[0] = [0:searchSettings.deals]
+        switchStates[3] = [Int:Bool]()
+        
+        for (index, category) in enumerate(categories) {
+            if find(searchSettings.categories as! [String], category["alias"]!) != nil {
+                switchStates[3]![index] = true
+            }
+        }
         
         tableView.reloadData()
     }
@@ -61,7 +75,7 @@ class FiltersViewController: UIViewController, UITableViewDataSource, UITableVie
         
         for (row, value) in switchStates[3] ?? [:] {
             if value == true {
-                filters["categories"] = filters["categories"] as! [String] + [categories[row]]
+                filters["categories"] = filters["categories"] as! [String] + [categories[row]["alias"]!]
             }
         }
         
@@ -115,25 +129,11 @@ class FiltersViewController: UIViewController, UITableViewDataSource, UITableVie
             }
         }
         
-        
-//        if (section == 3 && indexPath.row == 3 && !sectionExpanded[section]!) {
-//            sectionExpanded[section] = true
-////            for category in categoriesSelected {
-////                categoryRowsSelected.append(find(generalCategoriesValues, category)!)
-////            }
-//        }
-        
         tableView.reloadSections(NSIndexSet(index: indexPath.section), withRowAnimation: UITableViewRowAnimation.Fade)
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        
         var section = indexPath.section
-//        if (section == 3 && indexPath.row == 3 && !sectionExpanded[section]!) {
-//            var cell = tableView.dequeueReusableCellWithIdentifier("CategorySeeAllCell") as CategorySeeAllCell
-//            cell.selectionStyle = UITableViewCellSelectionStyle.None
-//            return cell
-//        }
         
         if (section == 0 || section == 3) {
             var cell = tableView.dequeueReusableCellWithIdentifier("SwitchCell") as! SwitchCell
@@ -141,7 +141,7 @@ class FiltersViewController: UIViewController, UITableViewDataSource, UITableVie
             if (section == 0) {
                 cell.switchLabel.text = "Deal"
             } else {
-                cell.switchLabel.text = categories[indexPath.row]
+                cell.switchLabel.text = categories[indexPath.row]["title"]
             }
             
             cell.delegate = self
@@ -214,5 +214,53 @@ class FiltersViewController: UIViewController, UITableViewDataSource, UITableVie
         }
     }
 
+    func YelpCategories() -> [[String:String]] {
+        return [
+            [
+                "alias": "abruzzese",
+                "title": "Abruzzese"
+            ],
+            [
+                "alias": "absinthebars",
+                "title": "Absinthe Bars"
+            ],
+            [
+                "alias": "accessories",
+                "title": "Accessories"
+            ],
+            [
+                "alias": "accountants",
+                "title": "Accountants"
+            ],
+            [
+                "alias": "active",
+                "title": "Active Life"
+            ],
+            [
+                "alias": "acupuncture",
+                "title": "Acupuncture"
+            ],
+            [
+                "alias": "adoptionservices",
+                "title": "Adoption Services"
+            ],
+            [
+                "alias": "adult",
+                "title": "Adult"
+            ],
+            [
+                "alias": "adultedu",
+                "title": "Adult Education"
+            ],
+            [
+                "alias": "adultentertainment",
+                "title": "Adult Entertainment"
+            ],
+            [
+                "alias": "advertising",
+                "title": "Advertising"
+            ]
+        ]
+    }
 
 }

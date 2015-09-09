@@ -13,6 +13,7 @@ class BusinessesViewController: UIViewController, UITableViewDelegate, UITableVi
     @IBOutlet weak var tableView: UITableView!
     var searchBar: UISearchBar!
     var businesses: [Business]!
+    var searchSettings = YelpSearchSettings()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -63,11 +64,19 @@ class BusinessesViewController: UIViewController, UITableViewDelegate, UITableVi
         let filtersViewController = navigationController.topViewController as! FiltersViewController
         
         filtersViewController.delegate = self
+        filtersViewController.searchSettings = self.searchSettings
     }
     
     func filtersViewController(filtersViewController: FiltersViewController, didUpdateFilters filters: [String : AnyObject]) {
+
         Business.searchWithTerm(searchBar.text, sort: YelpSortMode(rawValue: filters["sortBy"] as! Int), categories: filters["categories"] as? [String], deals: filters["deals"] as? Bool)
         { (businesses: [Business]!, error: NSError!) -> Void in
+            
+            self.searchSettings.sortBy = filters["sortBy"] as! Int
+            self.searchSettings.distance = filters["distance"] as! Int
+            self.searchSettings.deals = filters["deals"] as! Bool
+            self.searchSettings.categories = filters["categories"] as! [String]
+            
             self.businesses = businesses
             self.tableView.reloadData()
         }
