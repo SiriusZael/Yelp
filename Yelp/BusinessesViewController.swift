@@ -68,14 +68,14 @@ class BusinessesViewController: UIViewController, UITableViewDelegate, UITableVi
     }
     
     func filtersViewController(filtersViewController: FiltersViewController, didUpdateFilters filters: [String : AnyObject]) {
+        self.searchSettings.sortBy = filters["sortBy"] as! Int
+        self.searchSettings.distance = filters["distance"] as! Int
+        self.searchSettings.deals = filters["deals"] as! Bool
+        self.searchSettings.categories = filters["categories"] as! [String]
 
-        Business.searchWithTerm(searchBar.text, sort: YelpSortMode(rawValue: filters["sortBy"] as! Int), categories: filters["categories"] as? [String], deals: filters["deals"] as? Bool)
+        Business.searchWithTerm(searchBar.text, sort: YelpSortMode(rawValue: searchSettings.sortBy), categories: searchSettings.categories as? [String], deals: searchSettings.deals, distance: searchSettings.distance)
         { (businesses: [Business]!, error: NSError!) -> Void in
             
-            self.searchSettings.sortBy = filters["sortBy"] as! Int
-            self.searchSettings.distance = filters["distance"] as! Int
-            self.searchSettings.deals = filters["deals"] as! Bool
-            self.searchSettings.categories = filters["categories"] as! [String]
             
             self.businesses = businesses
             self.tableView.reloadData()
@@ -98,7 +98,7 @@ extension BusinessesViewController: UISearchBarDelegate {
     func searchBarCancelButtonClicked(searchBar: UISearchBar) {
         searchBar.text = ""
         searchBar.resignFirstResponder()
-        Business.searchWithTerm(searchBar.text)
+        Business.searchWithTerm(searchBar.text, sort: YelpSortMode(rawValue: searchSettings.sortBy), categories: searchSettings.categories as? [String], deals: searchSettings.deals, distance: searchSettings.distance)
             { (businesses: [Business]!, error: NSError!) -> Void in
                 self.businesses = businesses
                 self.tableView.reloadData()
@@ -107,7 +107,7 @@ extension BusinessesViewController: UISearchBarDelegate {
     
     func searchBarSearchButtonClicked(searchBar: UISearchBar) {
         searchBar.resignFirstResponder()
-        Business.searchWithTerm(searchBar.text)
+        Business.searchWithTerm(searchBar.text, sort: YelpSortMode(rawValue: searchSettings.sortBy), categories: searchSettings.categories as? [String], deals: searchSettings.deals, distance: searchSettings.distance)
         { (businesses: [Business]!, error: NSError!) -> Void in
                 self.businesses = businesses
                 self.tableView.reloadData()
