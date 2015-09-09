@@ -66,7 +66,11 @@ class BusinessesViewController: UIViewController, UITableViewDelegate, UITableVi
     }
     
     func filtersViewController(filtersViewController: FiltersViewController, didUpdateFilters filters: [String : AnyObject]) {
-//        doSearch()
+        Business.searchWithTerm(searchBar.text, sort: YelpSortMode(rawValue: filters["sortBy"] as! Int), categories: filters["categories"] as? [String], deals: filters["deals"] as? Bool)
+        { (businesses: [Business]!, error: NSError!) -> Void in
+            self.businesses = businesses
+            self.tableView.reloadData()
+        }
     }
 
 }

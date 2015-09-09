@@ -54,6 +54,17 @@ class FiltersViewController: UIViewController, UITableViewDataSource, UITableVie
         
         var filters = [String: AnyObject]()
         
+        filters["sortBy"] = sortByValues[sortByIndex]
+        filters["distance"] = distanceValues[distanceIndex]
+        filters["deals"] = switchStates[0]?[0] ?? false
+        filters["categories"] = [String]()
+        
+        for (row, value) in switchStates[3] ?? [:] {
+            if value == true {
+                filters["categories"] = filters["categories"] as! [String] + [categories[row]]
+            }
+        }
+        
         delegate?.filtersViewController?(self, didUpdateFilters: filters)
     }
     @IBAction func onCancel(sender: AnyObject) {
